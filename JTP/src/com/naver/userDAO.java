@@ -152,4 +152,31 @@ public class userDAO {
 		return dto;
 	}
 
+	public List<Book> selectBook() {
+		List<Book> list = new ArrayList<Book>();
+		sql = "SELECT * FROM book";
+
+		try {
+			ining();
+
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int code = rs.getInt("code");
+				String name = rs.getString("name");
+				String genre = rs.getString("genre");
+				int price = rs.getInt("price");
+
+				Book books = new Book(code, name, genre, price);
+				list.add(books);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			closeAll();
+		}
+
+		return list;
+	}
+
 }

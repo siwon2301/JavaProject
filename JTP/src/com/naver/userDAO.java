@@ -14,7 +14,9 @@ public class userDAO {
 	private final String PASSWORD = "ezen";
 	private Connection conn = null;
 	private PreparedStatement pstmt = null;
+	private boolean isOK = false;
 	private String sql = null;
+	private String sql2 = null;
 	private ResultSet rs = null;
 
 	public userDAO() {
@@ -39,6 +41,28 @@ public class userDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void okcloseAll() {
+		try {
+			if (isOK) {
+				conn.commit();
+			} else {
+				conn.rollback();
+			}
+			if (rs != null) {
+				rs.close();
+			}
+			if (pstmt != null) {
+				pstmt.close();
+			}
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void ining() throws Exception {
@@ -177,6 +201,38 @@ public class userDAO {
 		}
 
 		return list;
+	}
+
+	public void buybook(userDTO dto, Book book) {
+		sql = "INSERT INTO buybook VALUES (?,?)";
+		sql2 = "UPDATE userDTO set cash = cash - ? point = ? WHERE id = ?";
+		isOK = false;
+		try {
+			ining();
+			conn.setAutoCommit(false);
+			pstmt.setString(1, dto.getId());
+			pstmt.setInt(2, book.getCode());
+
+			pstmt.executeUpdate();
+
+			if (pstmt != null) {
+				pstmt.close();
+			}
+
+			pstmt = conn.prepareStatement(sql2);
+			pstmt.setInt(1, book.getPrice());
+			pstmt.setInt(2, +10);
+			pstmt.setString(3, dto.getId());
+
+			pstmt.executeUpdate();
+
+			isOK = true;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			okcloseAll();
+		}
 	}
 
 }
